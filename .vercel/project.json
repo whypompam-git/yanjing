@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_4rFUMtmOJZ4NmDs7k5vP1kT7wNrf",
+  "orgId": "team_iZjAFZAqV5U5RPAwjBTJtMrY",
+  "projectName": "prompost",
+  "settings": {
+    "createdAt": 1790099208199,
+    "framework": "nextjs",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

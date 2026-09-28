@@ -1,7 +1,7 @@
 import { createClient } from "./client";
 import { cachedFetch } from "@/lib/offline/cache";
 import { normalizePermissions } from "@/lib/permissions";
-import type { Booking, Package, Staff, StaffScheduleEntry } from "../types";
+import type { Booking, Package, Staff, StaffScheduleEntry, Transaction } from "../types";
 
 // Thin data-access layer over the schema in supabase/migrations/.
 const supabase = () => createClient();
@@ -330,5 +330,61 @@ export async function updateBookingRow(id: string, values: Partial<Omit<Booking,
 
 export async function deleteBookingRow(id: string): Promise<void> {
   const { error } = await supabase().from("bookings").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// ── Accounting transactions ───────────────────────────────────────────
+// Reuses the `transactions` table already in the schema (income/expense
+// ledger) — no migration needed, this is the first page to query it.
+type TransactionRow = {
+  id: string;
+  type: string;
+  category: string | null;
+  amount: number;
+  description: string | null;
+  occurred_at: string;
+};
+
+const TRANSACTION_COLUMNS = "id, type, category, amount, description, occurred_at";
+
+const fromTransactionRow = (r: TransactionRow): Transaction => ({
+  id: r.id,
+  type: r.type as Transaction["type"],
+  category: r.category ?? undefined,
+  amount: Number(r.amount),
+  description: r.description ?? undefined,
+  occurredAt: r.occurred_at,
+});
+
+export async function listTransactions(dateFrom: string, dateTo: string): Promise<Transaction[]> {
+  const { data, error } = await supabase()
+    .from("transactions")
+    .select(TRANSACTION_COLUMNS)
+    .gte("occurred_at", dateFrom)
+    .lte("occurred_at", dateTo)
+    .order("occurred_at", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as TransactionRow[]).map(fromTransactionRow);
+}
+
+export async function createTransactionRow(values: Omit<Transaction, "id">): Promise<Transaction> {
+  const { data, error } = await supabase()
+    .from("transactions")
+    .insert({
+      type: values.type,
+      category: values.category || null,
+      amount: values.amount,
+      description: values.description || null,
+      occurred_at: values.occurredAt,
+    })
+    .select(TRANSACTION_COLUMNS)
+    .single();
+  if (error) throw error;
+  return fromTransactionRow(data as TransactionRow);
+}
+
+export async function deleteTransactionRow(id: string): Promise<void> {
+  const { error } = await supabase().from("transactions").delete().eq("id", id);
   if (error) throw error;
 }

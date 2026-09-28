@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, CalendarDays, PlusCircle, Package, Settings } from "lucide-react";
+import { LayoutDashboard, CalendarDays, PlusCircle, Package, Wallet, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/AuthContext";
 
@@ -54,6 +54,19 @@ export function MobileBottomNav() {
         <Package size={22} />
         แพ็คเกจ
       </Link>
+
+      {auth.permissions.accounting && (
+        <Link
+          href="/accounting"
+          className={cn(
+            "flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[11px] font-medium",
+            pathname?.startsWith("/accounting") ? "text-brand-600" : "text-gray-500",
+          )}
+        >
+          <Wallet size={22} />
+          บัญชี
+        </Link>
+      )}
 
       {auth.role === "owner" && (
         <Link

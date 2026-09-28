@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarDays, Package, Settings } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Package, Wallet, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_LOGO_SRC, APP_NAME } from "@/config/branding";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "คิววันนี้", icon: LayoutDashboard },
   { href: "/calendar", label: "ปฏิทิน", icon: CalendarDays },
   { href: "/packages", label: "แพ็คเกจ", icon: Package },
+  { href: "/accounting", label: "บัญชี", icon: Wallet, requiresPermission: "accounting" as const },
   { href: "/settings/staff", label: "ตั้งค่า", icon: Settings, ownerOnly: true },
 ];
 
@@ -20,7 +21,8 @@ export function Sidebar() {
   const auth = useAuth();
   const items = NAV_ITEMS.filter(
     (item) =>
-      !item.ownerOnly || auth.role === "owner",
+      (!item.ownerOnly || auth.role === "owner") &&
+      (!item.requiresPermission || auth.permissions[item.requiresPermission]),
   );
 
   return (

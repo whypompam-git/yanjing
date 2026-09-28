@@ -33,6 +33,17 @@ export interface StaffScheduleEntry {
 export type BookingStatus = "confirmed" | "cancelled";
 export type BookingSource = "admin" | "customer";
 
+export type TransactionType = "income" | "expense";
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  category?: string;
+  amount: number;
+  description?: string;
+  occurredAt: string; // ISO date
+}
+
 export interface Booking {
   id: string;
   customerName: string;
